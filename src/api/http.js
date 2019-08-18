@@ -122,3 +122,7 @@ export const goodsList = ({ query, pagenum, pagesize }) => {
         }
     })
 }
+//删除商品
+export const deleteGoods=(id)=>{
+    return http.delete(`goods/${id}`)
+}

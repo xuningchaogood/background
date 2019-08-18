@@ -16,10 +16,17 @@
       <el-table-column property="goods_weight" label="商品重量" width="80"></el-table-column>
       <el-table-column property="add_time" label="创建时间" width="150"></el-table-column>
       <el-table-column property="operation" label="操作">
-          <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" plain size="mini"></el-button>
-              <el-button type="danger" icon="el-icon-delete" plain size="mini"></el-button>
-          </template>
+        <template slot-scope="scope">
+          <el-button type="primary" icon="el-icon-edit" plain size="mini"></el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            plain
+            size="mini"
+            @click="delGoods(scope.row)"
+          ></el-button>
+          <!-- {{scope.row}} -->
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -35,7 +42,7 @@
 </template>
 
 <script>
-import { goodsList } from "../api/http";
+import { goodsList, deleteGoods } from "../api/http";
 export default {
   data() {
     return {
@@ -55,6 +62,36 @@ export default {
     };
   },
   methods: {
+    //删除当前商品
+    delGoods(good) {
+      this.$confirm("此操作将永久删除该商品, 是否继续?", "删除商品", {
+        type: "warning"
+      })
+        .then(() => {
+          // console.log(good.goods_id);
+
+          deleteGoods(good.goods_id).then(res => {
+            //   console.log(res);
+
+            if (res.data.meta.status == 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              //重新渲染页面
+              this.getGoods();
+            } else {
+              this.$message.error(res.data.meta.msg);
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
     //当前页改变事件
     handleCurrentChange(page) {
       //修改当前页码为你被点击的页码

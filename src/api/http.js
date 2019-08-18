@@ -90,6 +90,18 @@ export const changeUserRole = ({ id, rid }) => {
 }
 
 //显示权限列表
-export const rights=(type)=>{
+export const rights = (type) => {
     return http.get(`rights/${type}`)
+}
+
+//添加角色
+export const addRole = ({ roleName, roleDesc }) => {
+    return http.post('roles', {
+        roleName,
+        roleDesc,
+    })
+}
+//删除角色
+export const delRole=(id)=>{
+    return http.delete(`roles/${id}`)
 }

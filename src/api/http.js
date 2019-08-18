@@ -1,0 +1,78 @@
+//导入axios
+import axios from 'axios'
+
+//设置基地址
+const http = axios.create({
+    baseURL: 'http://localhost:8888/api/private/v1/'
+})
+
+export default http;
+
+//请求拦截
+http.interceptors.request.use(function (config) {
+    //把你所有的请求拦下来
+    //拦下来给你加一个请求头 请求头的内容是token
+    config.headers.Authorization = window.localStorage.getItem('token')
+
+    return config
+}, function (error) {
+    //发生错误的回调函数
+    return Promise.reject(error);
+})
+//登录
+export const login = ({ username, password }) => {
+    return http.post('login', {
+        username,
+        password
+    })
+}
+//获取左侧菜单权限
+export const menus = () => {
+    return http.get('menus')
+}
+
+//用户数据列表
+export const users = ({ query, pagenum, pagesize }) => {
+    return http.get('users', {
+        //get请求如果提交的参数不是让你写在网址上
+        params: {
+            query,
+            pagenum,
+            pagesize,
+        }
+    })
+}
+
+// 新增用户的方法
+export const addUsers = ({ username, password, email, mobile }) => {
+
+    return http.post('users', {
+        username,
+        password,
+        email,
+        mobile
+    });
+}
+
+// 修改用户状态
+export const status = ({ uId, type }) => {
+    return http.put(`users/${uId}/state/${type}`)
+}
+
+//删除用户
+export const delUsers = ({ id }) => {
+    return http.delete(`users/${id}`,{
+        data:{
+            id:id
+        }
+    })
+}
+
+//编辑用户
+export const redUsers=({id,email,mobile})=>{
+    return http.put(`users/${id}`,{
+        id:id,
+        email:email,
+        mobile:mobile,
+    })
+}

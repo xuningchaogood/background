@@ -32,7 +32,7 @@
             @click="delRole(scope.row)"
           ></el-button>
           <!-- 分配权限 -->
-          <el-button type="warning" icon="el-icon-check" plain size="mini"></el-button>
+          <el-button type="warning" icon="el-icon-check" plain size="mini" @click="revoke(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -69,14 +69,36 @@
         <el-button type="primary" @click="submitEditForm('ruleForm')">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 权限分配 -->
+    <el-dialog title="编辑角色" :visible.sync="TreeFormVisible">
+      <el-tree
+        :data="treeData"
+        show-checkbox
+        node-key="id"
+        :default-expanded-keys="[5, 3]"
+        :default-checked-keys="[2]"
+        :props="defaultProps"
+      ></el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="TreeFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitTreeForm('ruleForm')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getRoles, addRole, delRole, editRole } from "../api/http";
+import { getRoles, addRole, delRole, editRole, rights } from "../api/http";
 export default {
   data() {
     return {
+      //树状图
+      treeData: [],
+      defaultProps: {
+        children: "children",
+        label: "authName"
+      },
       //编辑列表数据
       editform: {
         roleName: "",
@@ -89,6 +111,8 @@ export default {
       editRoleFormVisible: false,
       //添加角色弹框显示与隐藏
       dialogFormVisible: false,
+      //分配权限弹框显示与隐藏
+      TreeFormVisible: false,
 
       //添加角色表格
       form: {
@@ -106,20 +130,24 @@ export default {
     };
   },
   methods: {
+    //显示分配权限弹框
+    revoke(good) {
+        this.TreeFormVisible=true;
+    },
     //判断是否输入内容并编辑
     submitEditForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           editRole(this.editform).then(res => {
             // console.log(res);
-            if(res.data.meta.status==200) {
-                this.$message.success('编辑成功')
-                //隐藏
-                this.editRoleFormVisible=false;
-                //重新渲染
-                this.getRoles();
-            }else {
-                this.$message.error(res.data.meta.msg);
+            if (res.data.meta.status == 200) {
+              this.$message.success("编辑成功");
+              //隐藏
+              this.editRoleFormVisible = false;
+              //重新渲染
+              this.getRoles();
+            } else {
+              this.$message.error(res.data.meta.msg);
             }
           });
         } else {
@@ -198,6 +226,12 @@ export default {
   },
   created() {
     this.getRoles();
+
+    //渲染树状图
+    rights("tree").then(res => {
+      console.log(res);
+      this.treeData = res.data.data;
+    });
   }
 };
 </script>

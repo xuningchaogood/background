@@ -10,6 +10,7 @@ import index from '../views/index.vue'
 import users from '../views/userlist.vue'
 import rights from '../views/rights.vue'
 import roles from '../views/rolelist.vue'
+import goods from '../views/goods.vue'
 //设置组件规则
 const routes = [
     { path: '/login', component: login },
@@ -18,6 +19,7 @@ const routes = [
             { path: 'users', component: users },
             { path: 'rights', component: rights },
             { path: 'roles', component: roles },
+            { path: 'goods', component: goods },
         ]
     },
 ]

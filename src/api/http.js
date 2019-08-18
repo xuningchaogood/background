@@ -102,13 +102,23 @@ export const addRole = ({ roleName, roleDesc }) => {
     })
 }
 //删除角色
-export const delRole=(id)=>{
+export const delRole = (id) => {
     return http.delete(`roles/${id}`)
 }
 //编辑角色
-export const editRole=({id,roleName,roleDesc})=>{
-    return http.put(`roles/${id}`,{
+export const editRole = ({ id, roleName, roleDesc }) => {
+    return http.put(`roles/${id}`, {
         roleName,
         roleDesc
+    })
+}
+//渲染商品列表
+export const goodsList = ({ query, pagenum, pagesize }) => {
+    return http.get(`goods`, {
+        params: {
+            query,
+            pagenum,
+            pagesize,
+        }
     })
 }

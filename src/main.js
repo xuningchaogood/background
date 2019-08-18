@@ -11,6 +11,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 //use一下
 Vue.use(ElementUI);
 
+//导入组件
+import bread from './components/bread.vue'
+Vue.component('bread', bread)
+
 //导入封装的路由对象
 import router from './router/router'
 

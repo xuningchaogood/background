@@ -5,15 +5,19 @@ import VueRouter from 'vue-router'
 //use一下
 Vue.use(VueRouter)
 //导入组件
-import login from '../components/login.vue'
-import index from '../components/index.vue'
-import users from '../components/userlist.vue'
+import login from '../views/login.vue'
+import index from '../views/index.vue'
+import users from '../views/userlist.vue'
+import rights from '../views/rights.vue'
+import roles from '../views/rolelist.vue'
 //设置组件规则
 const routes = [
     { path: '/login', component: login },
     {
         path: '/index', component: index, children: [
-            { path: 'users', component: users }
+            { path: 'users', component: users },
+            { path: 'rights', component: rights },
+            { path: 'roles', component: roles },
         ]
     },
 ]

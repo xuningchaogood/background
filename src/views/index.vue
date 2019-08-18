@@ -32,6 +32,7 @@
 <script>
 import { menus } from "../api/http";
 export default {
+  name:'index',
   data() {
     return {
       menuList: []

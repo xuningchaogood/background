@@ -1,11 +1,7 @@
 <template>
   <div class="users">
     <!-- 面包屑 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    <bread xx="用户管理" oo="用户列表"></bread>
     <!-- 输入框 -->
     <el-input
       placeholder="请输入内容"
@@ -116,73 +112,61 @@
     </el-dialog>
     <!-- 分配角色 -->
     <el-dialog title="分配角色" :visible.sync="diaone">
-      <el-form :model="toform">
-        <el-form-item label="当前用户" label-width="120px" prop="username">
-          <el-input class="long" v-model="toform.username" autocomplete="off" :disabled="true"></el-input>
+      <el-form :model="roleForm">
+        <el-form-item label="当前用户">
+          <span>{{roleForm.username}}</span>
         </el-form-item>
 
-        <el-form-item label="请选择角色" label-width="120px">
-          <el-select v-model="value" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-              :disabled="item.disabled"
-            ></el-option>
+        <el-form-item label="请选择角色">
+          <el-select v-model="roleForm.rid" placeholder="请选择角色">
+            <el-option v-for="item in options" :label="item.roleName" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="diaone = false">取 消</el-button>
-        <el-button type="primary" @click="redUsers(toform)">确 定</el-button>
+        <el-button type="primary" @click="torole">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { users, addUsers, status, delUsers, redUsers } from "../api/http";
+import {
+  users,
+  addUsers,
+  status,
+  delUsers,
+  redUsers,
+  getRoles,
+  changeUserRole
+} from "../api/http";
 export default {
+  name:"users",
   data() {
     return {
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕",
-          disabled: true
-        },
-        {
-          value: "选项2",
-          label: "双皮奶",
-          
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
+      //更改权限
+      roleForm: {
+        id: 0,
+        rid: 0,
+        username: ""
+      },
+      //选项列表
+      options: [],
       //控制新增对话按钮显示或隐藏的
       dialogFormVisible: false,
       //控制编辑用户信息显示或隐藏
       dialogTableVisible: false,
       //控制编辑权限弹框的显示与隐藏
       diaone: false,
+      //编辑表单
       form: {
         username: "",
         password: "",
         email: "",
         mobile: ""
       },
+      //修改表单
       toform: {
         username: "",
         email: "",
@@ -220,10 +204,36 @@ export default {
     };
   },
   methods: {
+    //点击设置权限
+    torole() {
+      changeUserRole(this.roleForm).then(res => {
+        if (res.data.meta.status == 200) {
+          this.$message.success("分配成功");
+          //隐藏
+          this.diaone = false;
+          //重新渲染
+          this.getUsers();
+        } else {
+          this.$message.error(res.data.meta.msg);
+        }
+      });
+    },
     //显示编辑权限弹框
     show2(good) {
       //显示
       this.diaone = true;
+      //用户名
+      this.roleForm.username = good.username;
+      //最好不要给文字 而是给角色id
+      let rid = 0;
+      for (let i = 0; i < this.options.length; i++) {
+        if (this.options[i].roleName == good.role_name) {
+          rid = this.options[i].id;
+          break;
+        }
+      }
+      this.roleForm.rid = rid;
+      this.roleForm.id = good.id;
     },
     //显示编辑用户的弹框
     show(good) {
@@ -256,31 +266,31 @@ export default {
     delUsers(good) {
       // console.log(good);
 
-      delUsers({ id: good.id }).then(res => {
-        //判断
-        if (res.data.meta.status == 200) {
-          //调用插件
-          this.$confirm("此操作将永久删除该文件, 是否继续?", "删除用户", {
-            type: "warning"
-          })
-            .then(() => {
+      //调用插件
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "删除用户", {
+        type: "warning"
+      })
+        .then(() => {
+          delUsers({ id: good.id }).then(res => {
+            //判断
+            if (res.data.meta.status == 200) {
               this.$message({
                 type: "success",
                 message: "删除成功!"
               });
               //调用重新渲染页面
               this.getUsers();
-            })
-            .catch(() => {
-              this.$message({
-                type: "info",
-                message: "讨厌~ 别吓人家嘛"
-              });
-            });
-        } else {
-          this.$message.error(res.data.meta.msg);
-        }
-      });
+            } else {
+              this.$message.error(res.data.meta.msg);
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "讨厌~ 别吓人家嘛"
+          });
+        });
     },
     //状态改变事件
     changeColor(good) {
@@ -302,6 +312,7 @@ export default {
           addUsers(this.form).then(res => {
             //判断
             if (res.data.meta.status == 201) {
+              this.$message.success("新增成功");
               //隐藏弹框
               this.dialogFormVisible = false;
               //重新渲染页面
@@ -343,7 +354,12 @@ export default {
   },
   //页面一显示就调用
   created() {
+    //发请求获取用户列表
     this.getUsers();
+
+    getRoles().then(res => {
+      this.options = res.data.data;
+    });
   }
 };
 </script>
@@ -355,12 +371,5 @@ export default {
 }
 .long {
   width: 100%;
-}
-.el-breadcrumb {
-  height: 45px;
-  background-color: #d3dce6;
-  margin-top: -20px;
-  padding-left: 15px;
-  line-height: 45px;
 }
 </style>

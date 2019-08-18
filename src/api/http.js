@@ -61,18 +61,35 @@ export const status = ({ uId, type }) => {
 
 //删除用户
 export const delUsers = ({ id }) => {
-    return http.delete(`users/${id}`,{
-        data:{
-            id:id
+    return http.delete(`users/${id}`, {
+        data: {
+            id: id
         }
     })
 }
 
 //编辑用户
-export const redUsers=({id,email,mobile})=>{
-    return http.put(`users/${id}`,{
-        id:id,
-        email:email,
-        mobile:mobile,
+export const redUsers = ({ id, email, mobile }) => {
+    return http.put(`users/${id}`, {
+        id: id,
+        email: email,
+        mobile: mobile,
     })
+}
+
+//获取角色列表
+export const getRoles = () => {
+    return http.get('roles')
+}
+
+//分配用户角色
+export const changeUserRole = ({ id, rid }) => {
+    return http.put(`users/${id}/role`, {
+        rid
+    })
+}
+
+//显示权限列表
+export const rights=(type)=>{
+    return http.get(`rights/${type}`)
 }

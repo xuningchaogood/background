@@ -22,6 +22,7 @@
             size="mini"
             @click="editRole(scope.row)"
           ></el-button>
+          <!-- {{scope.row}} -->
           <!-- 删除 -->
           <el-button
             type="danger"
@@ -53,7 +54,7 @@
     </el-dialog>
 
     <!-- 编辑角色 -->
-    <el-form-item title="编辑角色" :visible.sync="dialogFormVisible">
+    <el-dialog title="编辑角色" :visible.sync="editRoleFormVisible">
       <el-form :model="editform" :rules="rules" ref="ruleForm">
         <el-form-item label="角色名称" label-width="120px" prop="roleName">
           <el-input class="long" v-model="editform.roleName" autocomplete="off"></el-input>
@@ -64,26 +65,28 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+        <el-button @click="editRoleFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitEditForm('ruleForm')">确 定</el-button>
       </div>
-    </el-form-item>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getRoles, addRole, delRole } from "../api/http";
+import { getRoles, addRole, delRole, editRole } from "../api/http";
 export default {
   data() {
     return {
       //编辑列表数据
-      editform:{
-          roleName,
-          roleDesc,
-          id:0,
+      editform: {
+        roleName: "",
+        roleDesc: "",
+        id: 0
       },
       //角色列表数据
       tableData: [],
+      //编辑角色弹框显示与隐藏
+      editRoleFormVisible: false,
       //添加角色弹框显示与隐藏
       dialogFormVisible: false,
 
@@ -103,9 +106,40 @@ export default {
     };
   },
   methods: {
+    //判断是否输入内容并编辑
+    submitEditForm(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          editRole(this.editform).then(res => {
+            // console.log(res);
+            if(res.data.meta.status==200) {
+                this.$message.success('编辑成功')
+                //隐藏
+                this.editRoleFormVisible=false;
+                //重新渲染
+                this.getRoles();
+            }else {
+                this.$message.error(res.data.meta.msg);
+            }
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
     //显示编辑框
-    editRole(good) {},
-    //判断是否输入内容
+    editRole(good) {
+      //显示弹框
+      this.editRoleFormVisible = true;
+      //赋值
+      this.editform.roleName = good.roleName;
+      this.editform.roleDesc = good.roleDesc;
+      this.editform.id = good.id;
+    },
+    //判断是否输入内容并添加角色
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {

@@ -105,3 +105,10 @@ export const addRole = ({ roleName, roleDesc }) => {
 export const delRole=(id)=>{
     return http.delete(`roles/${id}`)
 }
+//编辑角色
+export const editRole=({id,roleName,roleDesc})=>{
+    return http.put(`roles/${id}`,{
+        roleName,
+        roleDesc
+    })
+}
